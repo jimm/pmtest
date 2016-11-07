@@ -2,13 +2,15 @@
 
 A Clojure library that uses the Java PortMidi library.
 
+See also https://github.com/Chouser/clojure-jna which would let me bypass
+the JPortMidiApi class completely.
+
 ## Usage
 
 FIXME
 
 ## License
 
-Copyright © 2016 FIXME
+Copyright © 2016 Jim Menard
 
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+Distributed under the MIT license.
