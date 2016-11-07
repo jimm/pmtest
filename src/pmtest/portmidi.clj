@@ -47,16 +47,29 @@
 
 (defn output-device? [i] (jportmidi.JPortMidiApi/Pm_GetDeviceOutput i))
 
+(defn -print-devices
+  [title pred]
+  (println title)
+  (let [num-devices (count-devices)]
+    (->>
+     num-devices
+     range
+     (filter pred)
+     (map #(println (format "  %2d: %s" % (device-name %)))))))
+
+(defn list-devices
+  "List all MIDI devices to stdout."
+  []
+  (let [num-devices (count-devices)]
+    (dorun (-print-devices "Inputs" input-device?))
+    (dorun (-print-devices "Outputs" output-device?))))
+
 ;;; **************** open devices ****************
 
 (defn open-input
   [input-device]
-  (println "input-device" input-device)
   (let [stream (jportmidi.JPortMidiApi$PortMidiStream.)]
-    (println "input-device" input-device)
-    (println "stream" stream)
     (check-error (jportmidi.JPortMidiApi/Pm_OpenInput stream input-device nil *bufsize*))
-    (println "stream" stream)
     stream))
 
 (defn open-output
@@ -65,7 +78,26 @@
     (check-error (jportmidi.JPortMidiApi/Pm_OpenOutput stream output-device nil *bufsize*
                                                        *latency*))
     stream))
-;;; **************** messages ****************
+
+(defn -open-io-named
+  [name type-p open-f]
+  (let [num-devices (count-devices)
+        idx (first (filter #(and (type-p %)
+                                 (= (device-name %) name))
+                           (range num-devices)))]
+    (open-f idx)))
+
+(defn open-input-named
+  "Open the input with the given name and return an input stream."
+  [name]
+  (-open-io-named name input-device? open-input))
+
+(defn open-output-named
+  "Open the output with the given name and return an output stream."
+  [name]
+  (-open-io-named name output-device? open-output))
+
+;;; **************** messages and structs ****************
 
 (defn set-filter
   [stream filters]
@@ -89,12 +121,27 @@
 (defn message-data1 [msg] (bit-and (bit-shift-right msg 8) 0xff))
 (defn message-data2 [msg] (bit-and (bit-shift-right msg 16) 0xff))
 
+(defn make-pm-event [] (jportmidi.JPortMidiApi$PmEvent.))
+(defn pm-event-message [pm-event] (.message pm-event))
+(defn pm-event-timestamp [pm-event] (.timestamp pm-event))
+
 ;;; **************** reading and writing ****************
 
 ;; Avoid conflict with clojure.core/read method name.
-(defn midi-read [stream buffer] (jportmidi.JPortMidiApi/Pm_Read stream buffer))
+(defn midi-read
+  [stream]
+  (let [buffer (make-pm-event)]
+    (check-error (jportmidi.JPortMidiApi/Pm_Read stream buffer))
+    buffer))
 
 (defn poll [stream] (jportmidi.JPortMidiApi/Pm_Poll stream))
+
+(defn wait-for-input
+  [stream]
+  (loop [ready (poll stream)]
+    (when-not ready
+      (Thread/sleep 10)
+      (recur (poll stream)))))
 
 ;; Avoid conflict with clojure.core/write method name.
 (defn midi-write [stream buffer] (jportmidi.JPortMidiApi/Pm_Write stream buffer))
