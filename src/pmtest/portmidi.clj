@@ -1,6 +1,7 @@
 ;;; A wrapper around the JPortMidiApi class.
 
 (ns pmtest.portmidi
+  (use [pmtest.consts :as c])
   (import [jportmidi JPortMidiApi JPortMidiException
            JPortMidiApi$PortMidiStream JPortMidiApi$PmEvent]))
 
@@ -112,18 +113,36 @@
 (defn close [stream] (jportmidi.JPortMidiApi/Pm_Close stream))
 
 (defn message
-  [status data1 data2]
-  (+ (bit-shift-left (bit-and data2 0xff) 16)
-     (bit-shift-left (bit-and data1 0xff)  8)
-     (bit-and status 0xff)))
+  ([status] (message status 0 0))
+  ([status data1] (message status data1 0))
+  ([status data1 data2]
+   (+ (bit-shift-left (bit-and data2 0xff) 16)
+      (bit-shift-left (bit-and data1 0xff)  8)
+      (bit-and status 0xff))))
 
 (defn message-status [msg] (bit-and msg 0xff))
+(defn message-channel-status [msg] (bit-and msg 0xf0))
+(defn message-channel [msg] (bit-and msg 0x0f))
 (defn message-data1 [msg] (bit-and (bit-shift-right msg 8) 0xff))
 (defn message-data2 [msg] (bit-and (bit-shift-right msg 16) 0xff))
 
 (defn make-pm-event [] (jportmidi.JPortMidiApi$PmEvent.))
 (defn pm-event-message [pm-event] (.message pm-event))
 (defn pm-event-timestamp [pm-event] (.timestamp pm-event))
+
+;;; **************** predicates ****************
+
+(defn channel? [msg] (< (message-status msg) 0xf0))
+(defn system? [msg] (>= c/sysex (message-status msg) c/eox))
+(defn realtime? [msg] (>= (message-status msg) c/sysex))
+
+(defn note-off? [msg] (= c/note-off (message-channel-status msg)))
+(defn note-on? [msg] (= c/note-on (message-channel-status msg)))
+(defn poly-pressure? [msg] (= c/poly-pressure (message-channel-status msg)))
+(defn note? [msg] (< (message-status msg) c/controller))
+(defn controller? [msg] (= c/controller (message-channel-status msg)))
+(defn program-change? [msg] (= c/program-change (message-channel-status msg)))
+(defn pitch-bend? [msg] (= c/pitch-bend (message-channel-status msg)))
 
 ;;; **************** reading and writing ****************
 
