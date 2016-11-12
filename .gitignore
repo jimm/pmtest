@@ -4,6 +4,7 @@
 pom.xml
 pom.xml.asc
 *.jar
+!lib/jportmidi.jar
 *.class
 /.lein-*
 /.nrepl-port
