@@ -37,7 +37,9 @@
                                    {:in :mb
                                     :out :sj
                                     :out-chan 2
-                                    :prog-chg 64 :zone (range 64 76) :transpose 12}
+                                    :prog-chg 64
+                                    :zone (range 64 76)
+                                    :xpose 12}
                                    {:in :mb
                                     :in-chan 10
                                     :out :drums
@@ -51,22 +53,22 @@
                                     :out-chan 4
                                     :bank {:msb 2}
                                     :program 100
-                                    :filter #(if (pmtest.portmidi/note-on? %2)
-                                               (pmtest.portmidi/message (pmtest.portmidi/message-status %2)
-                                                           (pmtest.portmidi/message-data1 %2)
-                                                           (max 0 (dec (pmtest.portmidi/message-data2 %2))))
-                                               %2)}
+                                    :filter (fn [conn msg] if (pmtest.portmidi/note-on? msg)
+                                               (pmtest.portmidi/message (pmtest.portmidi/message-status msg)
+                                                           (pmtest.portmidi/message-data1 msg)
+                                                           (max 0 (dec (pmtest.portmidi/message-data2 msg))))
+                                               msg)}
                                    ]}
                     {:name "First Song Second Patch"}]}
 
          {:name "Second Song"
           :patches [
                     {:name "Second Song First Patch"
-                     :stop [(pmtest.portmidi/message c/tune-request)] ;; shorthand for stop-messages
+                     :stop [(pmtest.portmidi/message c/tune-request)]
                      :conns [
                              {:io {:mb nil :sj 4} :prog-chg 22 :zone (range 76 128)}
                              {:io {:ws-in nil :ws-out :6} :zone (range 64 76)
-                              :filter second} ;; no-op
+                              :filter second} ;; no-op; filter is optional, this is just an example
                              ]}
                     {:name "Second Song Second Patch"}]}
          {:name "Third Song"

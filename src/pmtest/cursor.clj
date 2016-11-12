@@ -75,3 +75,43 @@
   the previous song in the song list."
   [c]
   (-move-patch (complement zero?) prev-song dec))
+
+(defn goto-song
+  [c name-regex]
+  ;; TODO
+  )
+
+(defn goto-song-list
+  [c name-regex]
+  ;; TODO
+  )
+
+(defn mark
+  "Remembers the names of the current song list, song, and patch.
+  Used by restore."
+  [c]
+  ;; TODO
+  )
+
+(defn restore
+  "Using the names saved by #save, try to find them now.
+
+  Since names can change we use Damerau-Levenshtein distance on lowercase
+  versions of all strings."
+  [c]
+  ;; TODO
+  )
+
+(defn find-nearest-match
+  "List must contain objects that respond to #name. If str is nil or
+  xs is nil or empty then nil is returned."
+  [c xs str]
+  ;; TODO
+  )
+
+(defn damerau-levenshtein
+  "https://gist.github.com/182759 (git://gist.github.com/182759.git)
+  Referenced from http://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance"
+  [s1 s2]
+  ;; TODO
+  )

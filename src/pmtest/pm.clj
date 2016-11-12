@@ -15,7 +15,8 @@
 (defn -make-conn
   [c inputs outputs]
   (assoc c
-         :in 
+;; TODO
+         :in (:in c)))
 
 (defn -make-patch
   [p inputs outputs]

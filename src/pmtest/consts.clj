@@ -59,11 +59,11 @@
 ;; MIDI clock (24 per quarter note)
 (def clock 0xF8)
 ;; Sequence start
-(def start 0xFA)
+(def seq-start 0xFA)
 ;; Sequence continue
-(def continue 0xFB)
+(def seq-continue 0xFB)
 ;; Sequence stop
-(def stop 0xFC)
+(def seq-stop 0xFC)
 ;; Active sensing (sent every 300 ms when nothing else being sent)
 (def active-sense 0xFE)
 ;; System reset

@@ -104,9 +104,10 @@
   [stream filters]
   (jportmidi.JPortMidiApi/Pm_SetFilter stream filters))
 
-(defn channel [chan] (bit-shift-left 1 chan))
-
-(defn set-channel-mask [stream mask] (jportmidi.JPortMidiApi/Pm_SetChannelMask stream mask))
+(defn set-channel-mask
+  "Mask is a MIDI channel bitmask. Channel 0 is the low byte."
+  [stream mask]
+  (jportmidi.JPortMidiApi/Pm_SetChannelMask stream mask))
 
 (defn abort [stream] (jportmidi.JPortMidiApi/Pm_Abort stream))
 
@@ -129,20 +130,6 @@
 (defn make-pm-event [] (jportmidi.JPortMidiApi$PmEvent.))
 (defn pm-event-message [pm-event] (.message pm-event))
 (defn pm-event-timestamp [pm-event] (.timestamp pm-event))
-
-;;; **************** predicates ****************
-
-(defn channel? [msg] (< (message-status msg) 0xf0))
-(defn system? [msg] (>= c/sysex (message-status msg) c/eox))
-(defn realtime? [msg] (>= (message-status msg) c/sysex))
-
-(defn note-off? [msg] (= c/note-off (message-channel-status msg)))
-(defn note-on? [msg] (= c/note-on (message-channel-status msg)))
-(defn poly-pressure? [msg] (= c/poly-pressure (message-channel-status msg)))
-(defn note? [msg] (< (message-status msg) c/controller))
-(defn controller? [msg] (= c/controller (message-channel-status msg)))
-(defn program-change? [msg] (= c/program-change (message-channel-status msg)))
-(defn pitch-bend? [msg] (= c/pitch-bend (message-channel-status msg)))
 
 ;;; **************** reading and writing ****************
 

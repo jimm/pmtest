@@ -20,4 +20,5 @@
   "Display all MIDI devices"
   []
   (pm/list-devices)
+  (midi-through)
   (flush))
