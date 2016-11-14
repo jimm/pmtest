@@ -3,8 +3,8 @@
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
+  :resource-paths ["lib/jportmidi.jar"]
   :dependencies [[org.clojure/clojure "1.8.0"]
-                 [portmidi/jportmidi "1.0.0"]
-                 ;; [clojure-lanterna "0.9.4"]
+                 ;; [clojure-lanterna "0.9.4"] ; for curses
                  ]
   :main pmtest.core)

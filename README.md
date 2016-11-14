@@ -1,19 +1,23 @@
 # pmtest
 
-A Clojure library that uses the Java PortMidi library.
-
-See also https://github.com/Chouser/clojure-jna which would let me bypass
-the JPortMidiApi class completely.
+A Clojure library that uses the Java PortMidi library. Starting to turn into
+a version of [PatchMaster](http://patchmaster.org/).
 
 ## Usage
 
 FIXME
 
-To install the local jar file:
-```sh
-mvn install:install-file -Dfile=lib/jportmidi.jar \
-    -DgroupId=portmidi -DartifactId=jportmidi -Dversion=1.0.0 -Dpackaging=jar
-```
+Assumes you've
+installed [libportmidi](http://portmedia.sourceforge.net/portmidi/).
+
+## Notes
+
+I/O objects
+start like ["name", :sym, "display name"
+
+## To Do
+
+DSL for input files.
 
 ## License
 
