@@ -7,14 +7,17 @@
 (deftest load-input-test
   (testing "Input setup."
     (let [pm (loader/load-pm-file test-file)]
-      (is (= 2 (count (:inputs pm))))
-      (is (= ["input 2" :ws-in "WaveStation"] (second (:inputs pm)))))))
+      (is (= {:mb {:type :input :sym :mb :port-name "input 1" :display-name "midiboard"}
+              :ws-in {:type :input :sym :ws-in :port-name "input 2" :display-name "WaveStation"}}
+             (:inputs pm))))))
 
 (deftest load-output-test
   (testing "Output setup."
     (let [pm (loader/load-pm-file test-file)]
-      (is (= 2 (count (:outputs pm))))
-      (is (= ["output 2" :sj "SuperJupiter"] (second (:outputs pm)))))))
+      (is (= {:ws-out {:type :input :sym :ws-out :port-name "output 1" :display-name "WaveStation"}
+              :sj {:type :input :sym :sj :port-name "output 2" :display-name "SuperJupiter"}
+              :drums {:type :input :sym :drums :port-name "output 2" :display-name "SuperJupiter"}}
+             (:outputs pm))))))
 
 (deftest load-messages-test
   (testing "Messages."
