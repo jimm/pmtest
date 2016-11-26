@@ -3,7 +3,7 @@
 ;;; display name.
 
 (ns pmtest.io
-  :use [pmtest.portmidi :as portmidi])
+  (:use [pmtest.portmidi :as portmidi]))
 
 (defn make-io
   [input-or-output sym port-name display-name]
@@ -22,4 +22,4 @@
   [io]
   (when-let [stream (:stream io)]
     (portmidi/close stream))
-  (assoc io :stream nil)
+  (assoc io :stream nil))
