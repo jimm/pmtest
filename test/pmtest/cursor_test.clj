@@ -9,7 +9,5 @@
   (testing "Input setup."
     (let [pm (loader/load-pm-file test-file)
           cursor (:cursor pm)]
-      (println "(-> pm :songs first)" (-> pm :songs first)) ; DEBUG
-      (println "(:song cursor)" (:song cursor)) ; DEBUG
-      (is (= (-> pm :songs first) (:song cursor)))
+      (is (= (-> pm :songs first :name) (-> cursor :song :name)))
       (is (= 0 (:song-index cursor))))))

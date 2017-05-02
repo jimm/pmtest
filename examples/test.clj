@@ -8,7 +8,7 @@
  :outputs [["output 1" {:ws-out "WaveStation"}]
            ;; In this setup output 2 => SuperJupiter => MIDI thru => Drum
            ;; machine.
-           ["output 2" {:sj "SuperJupiter"} {:drums "Drums"}]]
+           ["output 2" {:sj "SuperJupiter" :drums "Drums"}]]
  :messages [
             ["Tune Request" [(portmidi/message c/tune-request)]]
             ["Full Volume" (map #(portmidi/message (+ c/controller %) c/cc-volume 0xff) (range 16))]

@@ -14,9 +14,9 @@
 (deftest load-output-test
   (testing "Output setup."
     (let [pm (loader/load-pm-file test-file)]
-      (is (= {:ws-out {:type :input :sym :ws-out :port-name "output 1" :display-name "WaveStation"}
-              :sj {:type :input :sym :sj :port-name "output 2" :display-name "SuperJupiter"}
-              :drums {:type :input :sym :drums :port-name "output 2" :display-name "SuperJupiter"}}
+      (is (= {:ws-out {:type :output :sym :ws-out :port-name "output 1" :display-name "WaveStation"}
+              :sj {:type :output :sym :sj :port-name "output 2" :display-name "SuperJupiter"}
+              :drums {:type :output :sym :drums :port-name "output 2" :display-name "Drums"}}
              (:outputs pm))))))
 
 (deftest load-messages-test
