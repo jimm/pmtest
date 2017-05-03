@@ -7,52 +7,64 @@
 
 (defn make-cursor
   [pm]
-  (let [song-list (first (:song-lists pm))
-        song (first (:songs song-list))
-        patch (first (:patches song))]
-    {:pm pm
-     :song-list song-list
-     :song-list-index (if song-list 0 nil)
-     :song song
-     :song-index (if song 0 nil)
-     :patch patch
-     :patch-index (if patch 0 nil)}))
+  (let [song-index (if (-> pm :songs count pos?) 0 nil)]
+    {:song-list-index 0
+     :song-index song-index
+     :patch-index (if (and song-index
+                           (pos? (-> pm :songs first :patches count)))
+                    0 nil)}))
+
+(defn song-list
+  [c pm]
+  (when-let [i (:song-list-index c)]
+    (nth (:song-lists pm) i)))
+
+(defn song
+  ([c pm] (song c pm (:song-index c)))
+  ([c pm idx]
+  (when-let [sl (song-list c pm)]
+    (when idx
+      (nth (:songs pm)
+           (nth (:song-indexes sl) idx))))))
+
+(defn patch
+  [c pm]
+  (when-let [s (song c pm)]
+    (when-let [i (:patch-index c)]
+      (nth (:patches s) i))))
 
 (defn -move-song
-  [c bounds-test index-mod]
-  [c]
-  (let [song-list (:song-list c)
+  [c pm bounds-test index-mod]
+  (let [sl (song-list c pm)
         song-index (:song-index c)]
-    (if (bounds-test song-index song-list)
+    (if (bounds-test song-index (count (:song-indexes sl)))
       (let [new-song-index (index-mod song-index)
-            song (nth song-list new-song-index)
-            patch (first (:patches song))]
+            new-song (song c pm new-song-index)
+            patch (first (:patches new-song))]
         (patch/stop (:patch c))
         (patch/start patch)
         (assoc c
-               :song song
                :song-index new-song-index
-               :patch patch
                :patch-index (if patch 0 nil)))
       c)))
 
 (defn next-song
   "Go to first patch of next song. Do nothing if this is the last song in
   the song list."
-  [c]
-  (-move-song #(< %1 %2) #(inc %)))
+  [c pm]
+  (-move-song c pm #(< %1 (dec %2)) inc))
 
 (defn prev-song
   "Go to first patch of previous song. Do nothing if this is the first song
   in the song list."
-  [c]
-  (-move-song #(> %1 0) #(dec %)))
+  [c pm]
+  (-move-song c pm (fn [i _] > i 0) dec))
 
 (defn -move-patch
-  [c in-bounds-func if-out-of-bounds index-func]
+  [c pm in-bounds-func if-out-of-bounds index-func]
   (if (in-bounds-func (:patch-index c))
     (let [patch-index (index-func (:patch-index c))
-          patch (nth (get-in c [:song :patches]) patch-index)]
+          patch (nth (:patches (song c pm)) patch-index)]
       (patch/stop (:patch c))
       (patch/start patch)
       (assoc c
@@ -63,33 +75,38 @@
 (defn next-patch
   "Go to the next patch. If this is the last patch of the song, go to the
   next song in the song list."
-  [c]
+  [c pm]
   (-move-patch
-   #(let [num-patches (count (get-in c [:song :patches]))]
-      (< % (dec num-patches)))
-   next-song
+   c
+   pm
+   #(let [s (song c pm)]
+      (if s
+        (let [num-patches (count (:patches s))]
+          (< % (dec num-patches)))
+        false))
+   #(next-song % pm)
    inc))
 
 (defn prev-patch
   "Go to the previous patch. If this is the first patch of the song, go to
   the previous song in the song list."
-  [c]
-  (-move-patch (complement zero?) prev-song dec))
+  [c pm]
+  (-move-patch c pm (complement zero?) #(prev-song % pm) dec))
 
 (defn goto-song
-  [c name-regex]
+  [c pm name-regex]
   ;; TODO
   )
 
 (defn goto-song-list
-  [c name-regex]
+  [c pm name-regex]
   ;; TODO
   )
 
 (defn mark
   "Remembers the names of the current song list, song, and patch.
   Used by restore."
-  [c]
+  [c pm]
   ;; TODO
   )
 
@@ -98,7 +115,7 @@
 
   Since names can change we use Damerau-Levenshtein distance on lowercase
   versions of all strings."
-  [c]
+  [c pm]
   ;; TODO
   )
 

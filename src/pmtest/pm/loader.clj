@@ -5,15 +5,13 @@
 (defn make-pm
   ([] (make-pm {}))
   ([m]
-   (let [pm (merge {:inputs []
-                    :outputs []
-                    :song-lists []
-                    :songs []
-                    :cursor nil
-                    :messages {}                ; map of name => seq of messages
-                    :triggers {}}
-                   m)]
-     (assoc pm :cursor (cursor/make-cursor pm)))))
+   (merge {:inputs []
+           :outputs []
+           :song-lists [{:name "All Songs" :song-indexes (vec [])}]
+           :songs []
+           :messages {}                ; map of name => seq of messages
+           :triggers {}}
+          m)))
 
 (defn -make-conn
   [c inputs outputs]
@@ -31,19 +29,30 @@
 
 (defn -make-songs
   [pm-struct inputs outputs]
-  (map #(-make-song % inputs outputs) (:songs pm-struct)))
+  (vec (map #(-make-song % inputs outputs) (:songs pm-struct))))
 
 (defn -make-song-list
-  "Replace song names with songs in song-list."
-  [song-list songs]
-  (let [songs-from-names (for [n (:songs song-list)]
-                           (first (filter #(= n (:name %)) songs)))]
-    (assoc song-list :songs songs-from-names)))
+  "Given a {:name name :songs [name1 name2...]} map and the list of
+  all songs, return a {:name name :song-indexes [...]} map."
+  [in-song-list all-songs]
+  (letfn [(index-of
+            [name]
+            (->> all-songs
+                 (map #(list %1 %2) (iterate inc 0))   ; (index song) pairs
+                 (filter #(= name (:name (second %)))) ; find song
+                 first                                 ; first match (index song)
+                 first))]                              ; index
+    (let [song-indexes (->> in-song-list
+                            :songs
+                            (map index-of))]
+      {:name (:name in-song-list)
+       :song-indexes song-indexes})))
 
 (defn -make-song-lists
   [pm-struct]
   (let [songs (:songs pm-struct)]
-    (map #(-make-song-list % songs) (:song-lists pm-struct))))
+    (cons {:name "All Songs" :song-indexes (range (count songs))}
+          (map #(-make-song-list % songs) (:song-lists pm-struct)))))
 
 (defn -portmidi-ios
   [vecs type]
@@ -85,10 +94,9 @@
   (let [pm-struct (load-string (slurp file))
         inputs (-portmidi-inputs (:inputs pm-struct))
         outputs (-portmidi-outputs (:outputs pm-struct))
-        songs (-make-songs pm-struct inputs outputs)
-        pm (assoc (make-pm pm-struct)
-                  :inputs inputs
-                  :outputs outputs
-                  :songs songs
-                  :song-lists (-make-song-lists pm-struct))]
-    (assoc pm :cursor (cursor/make-cursor pm))))
+        songs (-make-songs pm-struct inputs outputs)]
+    (assoc (make-pm pm-struct)
+           :inputs inputs
+           :outputs outputs
+           :songs songs
+           :song-lists (-make-song-lists pm-struct))))

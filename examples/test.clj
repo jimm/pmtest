@@ -17,10 +17,11 @@
                 :f2 "Full Volume"}
  :triggers [
             ;; All on MIDI channel 1
-            [:mb (portmidi/message c/controller c/cc-gen-purpose-1 0xff) #(pm/next-patch %)]
-            [:mb (portmidi/message c/controller c/cc-gen-purpose-2 0xff) #(pm/prev-patch %)]
-            [:mb (portmidi/message c/controller c/cc-gen-purpose-3 0xff) #(pm/next-song %)]
-            [:mb (portmidi/message c/controller c/cc-gen-purpose-4 0xff) #(pm/prev-song %)]
+;; FIXME need pm and cursor
+            ;; [:mb (portmidi/message c/controller c/cc-gen-purpose-1 0xff) pm/next-patch]
+            ;; [:mb (portmidi/message c/controller c/cc-gen-purpose-2 0xff) pm/prev-patch]
+            ;; [:mb (portmidi/message c/controller c/cc-gen-purpose-3 0xff) pm/next-song]
+            ;; [:mb (portmidi/message c/controller c/cc-gen-purpose-4 0xff) pm/prev-song]
             [:ws-in (portmidi/message c/tune-request)
              #(do (pm/send-message % "Tune Request")
                   (pm/send-message % "Full Volume"))]

@@ -32,14 +32,18 @@
 (deftest load-song-lists-test
   (testing "Song lists."
     (let [pm (loader/load-pm-file test-file)]
-      (is (= 2 (count (:song-lists pm))))
-      (let [sl (first (:song-lists pm))]
+      (is (= 3 (count (:song-lists pm)))) ; All Songs + two more
+      (let [sl (second (:song-lists pm))]
         (is (= "Tonight's Song List") (:name sl))
-        (is (= 2 (count (:songs sl))))
-        (is (= "First Song" (-> sl :songs first :name)))
-        (is (= "Second Song" (-> sl :songs second :name)))))))
+        (is (= 2 (count (:song-indexes sl))))
+        (is (= 0 (-> sl :song-indexes first)))
+        (is (= 1 (-> sl :song-indexes second)))))))
 
-(deftest load-cursor-test
-  (testing "Cursor."
-    (let [pm (loader/load-pm-file test-file)]
-      (is (:cursor pm)))))              ; cursor itself is tested elsewhere
+(deftest create-all-songs-list-test
+  (testing "Loading all songs."
+    (let [pm (loader/load-pm-file test-file)
+          asl (first (:song-lists pm))]
+      (is (= "All Songs" (:name asl)))
+      (let [n (count (:songs pm))]
+        (is (= n (count (:song-indexes asl))))
+        (is (= (range n) (:song-indexes asl)))))))
