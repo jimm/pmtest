@@ -14,6 +14,8 @@
                            (pos? (-> pm :songs first :patches count)))
                     0 nil)}))
 
+(defn -all-songs-list [pm] (first (:song-lists pm)))
+
 (defn song-list
   [c pm]
   (when-let [i (:song-list-index c)]
@@ -95,8 +97,11 @@
 
 (defn goto-song
   [c pm name-regex]
-  ;; TODO
-  )
+  ;; use (re-find (re-pattern (str "(?i)" name-regex)) (:name thing))
+  (let [sl (or (song-list c pm) (-all-songs-list))]
+    (nth (:songs pm)
+         (first (filter #(re-find (re-pattern (str "(?i)" name-regex)) (:name %))
+                        (:songs sl))))))
 
 (defn goto-song-list
   [c pm name-regex]

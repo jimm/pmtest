@@ -75,10 +75,10 @@
   (testing "patch"
     (is (= "First Song First Patch" (-> test-cursor (patch test-pm) :name)))))
 
-#_(deftest test-goto-song
+(deftest test-goto-song
   (testing "goto-song"
-    ;; TODO
-    ))
+    (let [c (csr/goto-song test-cursor test-pm "econ")]
+      (cursor-check c 0 1 0))))
 
 #_(deftest test-goto-song-no-such-song
   (testing "goto-song-no-such-song"
