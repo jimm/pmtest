@@ -17,7 +17,7 @@
         (pm/close output)))))
 
 (defn -main
-  "Display all MIDI devices"
+  "Display all MIDI devices, then run `midi-through`."
   []
   (pm/list-devices)
   (midi-through)
